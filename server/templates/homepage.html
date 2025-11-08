@@ -1,0 +1,56 @@
+<!-- home.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная - Библиотека МАИ</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="icon" type="image/x-icon" href="{{url_for('static',path='favicon.ico')}}">
+</head>
+
+<body class="bg-gray-900">
+{% include 'header.html' %}
+
+<div class="min-h-screen bg-gray-900 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Приветствие -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-white mb-4">Добро пожаловать в библиотеку</h1>
+            <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                Это система управления университетской библиотекой. Здесь вы можете найти книги, 
+                отслеживать выдачу и управлять читателями.
+            </p>
+        </div>
+
+        <!-- Статистика -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <!-- Всего книг -->
+            <div class="bg-gray-800 rounded-lg p-6 text-center hover:bg-gray-700 transition-colors">
+                <div class="text-3xl font-bold text-blue-400 mb-2">{{ stats.total_books }}</div>
+                <div class="text-white font-medium">Всего книг в каталоге</div>
+            </div>
+
+            <!-- Доступно книг -->
+            <div class="bg-gray-800 rounded-lg p-6 text-center hover:bg-gray-700 transition-colors">
+                <div class="text-3xl font-bold text-green-400 mb-2">{{ stats.total_available }}</div>
+                <div class="text-white font-medium">Книг доступно для выдачи</div>
+            </div>
+
+            <!-- Зарегистрировано читателей -->
+            <div class="bg-gray-800 rounded-lg p-6 text-center hover:bg-gray-700 transition-colors">
+                <div class="text-3xl font-bold text-purple-400 mb-2">{{ stats.total_readers }}</div>
+                <div class="text-white font-medium">Зарегистрировано читателей</div>
+            </div>
+
+            <!-- Активных выдач -->
+            <div class="bg-gray-800 rounded-lg p-6 text-center hover:bg-gray-700 transition-colors">
+                <div class="text-3xl font-bold text-yellow-400 mb-2">{{ stats.active_loans }}</div>
+                <div class="text-white font-medium">Активных выдач</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'footer.html' %}
+</body>
+</html>
