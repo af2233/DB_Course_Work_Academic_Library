@@ -1,9 +1,12 @@
+// readers.js
+
+// Глобальные переменные для обратной совместимости
 let selectedReaderId = null;
 let selectedReaderName = null;
 
-// Функции для модального окна
 function openAddReaderModal() {
     document.getElementById('addReaderModal').classList.remove('hidden');
+    hideContextMenu();
 }
 
 function closeAddReaderModal() {
@@ -11,7 +14,6 @@ function closeAddReaderModal() {
     document.getElementById('addReaderForm').reset();
 }
 
-// Добавление читателя
 async function addReader(event) {
     event.preventDefault();
     
@@ -33,7 +35,6 @@ async function addReader(event) {
 
         if (response.ok) {
             closeAddReaderModal();
-            // Обновляем страницу для отображения нового читателя
             window.location.reload();
         } else {
             const error = await response.json();
@@ -45,55 +46,16 @@ async function addReader(event) {
     }
 }
 
-// Показать контекстное меню
-document.addEventListener('DOMContentLoaded', function() {
-    const contextMenuTriggers = document.querySelectorAll('.context-menu-trigger');
-    const contextMenu = document.getElementById('contextMenu');
-    
-    contextMenuTriggers.forEach(trigger => {
-        trigger.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            selectedReaderId = this.getAttribute('data-reader-id');
-            selectedReaderName = this.getAttribute('data-reader-name');
-            
-            // Позиционирование меню
-            contextMenu.style.display = 'block';
-            contextMenu.style.left = e.pageX + 'px';
-            contextMenu.style.top = e.pageY + 'px';
-        });
-    });
-    
-    // Скрыть меню при клике вне его
-    document.addEventListener('click', function() {
-        contextMenu.style.display = 'none';
-    });
-    
-    // Предотвратить скрытие при клике внутри меню
-    contextMenu.addEventListener('click', function(e) {
-        e.stopPropagation();
-    });
-
-    // Закрытие модального окна при клике вне его
-    document.getElementById('addReaderModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeAddReaderModal();
-        }
-    });
-});
-
 // Функции контекстного меню
 async function editReader() {
-    if (selectedReaderId) {
+    if (selectedItemId) {
         try {
-            // Загружаем данные читателя для редактирования
-            const response = await fetch(`/api/readers/${selectedReaderId}`);
+            const response = await fetch(`/api/readers/${selectedItemId}`);
             if (!response.ok) {
                 throw new Error('Ошибка загрузки данных читателя');
             }
             
             const readerData = await response.json();
-            
-            // Открываем модальное окно редактирования
             openEditReaderModal(readerData);
             
         } catch (error) {
@@ -104,10 +66,10 @@ async function editReader() {
 }
 
 async function deleteReader() {
-    if (selectedReaderId) {
-        if (confirm('Вы уверены, что хотите удалить читателя "' + selectedReaderName + '"?')) {
+    if (selectedItemId) {
+        if (confirm('Вы уверены, что хотите удалить читателя "' + selectedItemName + '"?')) {
             try {
-                const response = await fetch(`/api/readers/${selectedReaderId}`, {
+                const response = await fetch(`/api/readers/${selectedItemId}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -115,8 +77,6 @@ async function deleteReader() {
                 });
 
                 if (response.ok) {
-                    alert('Читатель успешно удален');
-                    // Обновляем страницу
                     window.location.reload();
                 } else {
                     const error = await response.json();
@@ -130,89 +90,20 @@ async function deleteReader() {
     }
 }
 
-function viewReaderLoans() {
-    if (selectedReaderId) {
-        alert('Просмотр займов читателя: ' + selectedReaderName + ' (ID: ' + selectedReaderId + ')');
-        // Здесь можно добавить логику просмотра займов
-    }
-}
-
-// Функция для открытия модального окна редактирования
 function openEditReaderModal(readerData) {
-    // Создаем или находим модальное окно редактирования
-    let editModal = document.getElementById('editReaderModal');
+    hideContextMenu();
     
-    if (!editModal) {
-        // Создаем модальное окно, если его нет
-        editModal = document.createElement('div');
-        editModal.id = 'editReaderModal';
-        editModal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50';
-        editModal.innerHTML = `
-            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                <div class="mt-3">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Редактировать читателя</h3>
-                    
-                    <form id="editReaderForm" onsubmit="updateReader(event)">
-                        <input type="hidden" id="edit_reader_id" name="reader_id">
-                        <div class="mb-4">
-                            <label for="edit_fio" class="block text-sm font-medium text-gray-700 mb-1">
-                                ФИО *
-                            </label>
-                            <input type="text" id="edit_fio" name="fio" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="edit_dolzhnost" class="block text-sm font-medium text-gray-700 mb-1">
-                                Должность
-                            </label>
-                            <input type="text" id="edit_dolzhnost" name="dolzhnost"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="edit_uchenaya_stepen" class="block text-sm font-medium text-gray-700 mb-1">
-                                Учёная степень
-                            </label>
-                            <input type="text" id="edit_uchenaya_stepen" name="uchenaya_stepen"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        <div class="flex items-center justify-end gap-3 mt-6">
-                            <button type="button" onclick="closeEditReaderModal()" 
-                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                                Отмена
-                            </button>
-                            <button type="submit" 
-                                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                Сохранить изменения
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(editModal);
-        
-        // Добавляем обработчик закрытия по клику вне окна
-        editModal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeEditReaderModal();
-            }
-        });
-    }
+    const editModal = document.getElementById('editReaderModal');
+    if (!editModal) return;
     
-    // Заполняем форму данными
     document.getElementById('edit_reader_id').value = readerData.id;
     document.getElementById('edit_fio').value = readerData.fio || '';
     document.getElementById('edit_dolzhnost').value = readerData.dolzhnost || '';
     document.getElementById('edit_uchenaya_stepen').value = readerData.uchenaya_stepen || '';
     
-    // Показываем модальное окно
     editModal.classList.remove('hidden');
 }
 
-// Функция для закрытия модального окна редактирования
 function closeEditReaderModal() {
     const editModal = document.getElementById('editReaderModal');
     if (editModal) {
@@ -221,7 +112,6 @@ function closeEditReaderModal() {
     }
 }
 
-// Функция для обновления читателя
 async function updateReader(event) {
     event.preventDefault();
     
@@ -244,7 +134,6 @@ async function updateReader(event) {
 
         if (response.ok) {
             closeEditReaderModal();
-            // Обновляем страницу для отображения изменений
             window.location.reload();
         } else {
             const error = await response.json();
@@ -255,3 +144,117 @@ async function updateReader(event) {
         alert('Произошла ошибка при обновлении читателя');
     }
 }
+
+async function viewReaderLoans() {
+    if (selectedItemId) {
+        try {
+            const response = await fetch(`/api/readers/${selectedItemId}/loans`);
+            if (!response.ok) {
+                throw new Error('Ошибка загрузки данных о займах');
+            }
+            
+            const loansData = await response.json();
+            openViewLoansModal(loansData);
+            
+        } catch (error) {
+            console.error('Error loading reader loans:', error);
+            alert('Ошибка при загрузке данных о займах');
+        }
+    }
+}
+
+function openViewLoansModal(loansData) {
+    hideContextMenu();
+
+    const modal = document.getElementById('viewLoansModal');
+    const title = document.getElementById('loansModalTitle');
+    const tableBody = document.getElementById('loansTableBody');
+    
+    if (!modal || !title || !tableBody) return;
+    
+    title.textContent = `Займы читателя: ${loansData.reader_fio}`;
+    
+    if (loansData.loans.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                    У читателя нет займов
+                </td>
+            </tr>
+        `;
+    } else {
+        tableBody.innerHTML = loansData.loans.map((loan, index) => `
+            <tr class="mai-table-row border-custom">
+                <td class="px-6 py-4 border-custom text-center">${index + 1}</td>
+                <td class="px-6 py-4 border-custom">${loan.book_name}</td>
+                <td class="px-6 py-4 border-custom">${formatDate(loan.loan_date)}</td>
+                <td class="px-6 py-4 border-custom">${formatDate(loan.loan_due_date)}</td>
+                <td class="px-6 py-4 border-custom">${loan.loan_return_date ? formatDate(loan.loan_return_date) : '-'}</td>
+                <td class="px-6 py-4 border-custom">
+                    <span class="mai-status-${getStatusClass(loan.status)}">${loan.status}</span>
+                </td>
+                <td class="px-6 py-4 border-custom text-center">
+                    ${!loan.loan_return_date ? `
+                    <button onclick="returnBook(${loan.loan_id}, ${loan.book_item_id})" 
+                            class="mai-btn mai-btn-sm bg-green-600 hover:bg-green-700 text-white">
+                        Вернуть
+                    </button>
+                    ` : '-'}
+                </td>
+            </tr>
+        `).join('');
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+function closeViewLoansModal() {
+    const modal = document.getElementById('viewLoansModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+async function returnBook(loanId, bookItemId) {
+    if (!confirm('Вы уверены, что хотите отметить книгу как возвращенную?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/loans/${loanId}/return`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                book_item_id: bookItemId
+            })
+        });
+
+        if (response.ok) {
+            viewReaderLoans();
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            const error = await response.json();
+            alert('Ошибка при возврате книги: ' + error.detail);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Произошла ошибка при возврате книги');
+    }
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    initContextMenu();
+    initModalCloseHandlers();
+    
+    // Для обратной совместимости - обновляем глобальные переменные
+    const contextMenuTriggers = document.querySelectorAll('.context-menu-trigger');
+    contextMenuTriggers.forEach(trigger => {
+        trigger.addEventListener('contextmenu', function(e) {
+            selectedReaderId = this.getAttribute('data-reader-id');
+            selectedReaderName = this.getAttribute('data-reader-name');
+        });
+    });
+});
