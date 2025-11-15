@@ -169,6 +169,47 @@
     </div>
 </div>
 
+<!-- Модальное окно просмотра займов читателя -->
+<div id="viewLoansModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-6xl shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900" id="loansModalTitle">Займы читателя</h3>
+                <button type="button" onclick="closeViewLoansModal()" 
+                        class="text-gray-400 hover:text-gray-600 text-2xl">
+                    &times;
+                </button>
+            </div>
+            
+            <div class="border-custom rounded-table mb-4">
+                <table class="w-full">
+                    <thead>
+                        <tr class="mai-table-header border-custom">
+                            <th class="px-6 py-4 border-custom">№</th>
+                            <th class="px-6 py-4 border-custom">Название книги</th>
+                            <th class="px-6 py-4 border-custom">Дата выдачи</th>
+                            <th class="px-6 py-4 border-custom">Срок возврата</th>
+                            <th class="px-6 py-4 border-custom">Дата возврата</th>
+                            <th class="px-6 py-4 border-custom">Статус</th>
+                            <th class="px-6 py-4 border-custom">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loansTableBody">
+                        <!-- Данные будут загружаться через JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="flex items-center justify-end gap-3 mt-6">
+                <button type="button" onclick="closeViewLoansModal()" 
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Контекстное меню -->
 <div id="contextMenu" class="mai-context-menu">
     <button onclick="editReader()">Редактировать</button>
@@ -176,6 +217,7 @@
     <button onclick="viewReaderLoans()">Просмотреть займы</button>
 </div>
 
+<script src="static/js/context-menu.js"></script>
 <script src="static/js/readers.js"></script>
 <script src="static/js/search.js"></script>
 {% include 'footer.html' %}
